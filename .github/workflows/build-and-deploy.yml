@@ -31,6 +31,7 @@ jobs:
 
       - name: Set ECR URL to parameter store
         run: |
+          TAG_NAME=${GITHUB_SHA}
           aws ssm put-parameter \
           --name "/code-pipeline-deployment/ecr-repository-url" \
           --description "Latest docker build in ECR" \
