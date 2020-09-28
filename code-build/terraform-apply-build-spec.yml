@@ -1,9 +1,7 @@
 version: 0.2
 
 phases:
-  init:
+  build:
     commands:
       - terraform init
-  apply:
-    commands:
       - terraform apply
