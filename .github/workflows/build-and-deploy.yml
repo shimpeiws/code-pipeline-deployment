@@ -39,7 +39,8 @@ jobs:
           --name "/code-pipeline-deployment/ecr-repository-url" \
           --description "Latest docker build in ECR" \
           --type "String" \
-          --value ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME}
+          --value ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME} \
+          --overwrite
 
       - name: Start pipeline execution
         run: |
