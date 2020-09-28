@@ -34,6 +34,7 @@ jobs:
           aws ssm put-parameter \
           --name "/code-pipeline-deployment/ecr-repository-url" \
           --description "Latest docker build in ECR" \
+          --type "String" \
           --value ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME}
 
       - name: Start pipeline execution
