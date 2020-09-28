@@ -42,6 +42,13 @@ resource "aws_iam_role_policy" "code_build_policy" {
   policy = data.aws_iam_policy_document.code_build_policy.json
 }
 
+resource "aws_codebuild_source_credential" "github" {
+  auth_type   = "PERSONAL_ACCESS_TOKEN"
+  server_type = "GITHUB"
+  token       = var.github_oauth_token
+}
+
+
 resource "aws_codebuild_project" "plan" {
   name          = "${var.code_build_project_name}-terraform-plan"
   description   = "code build for terraform plan"
@@ -65,6 +72,10 @@ resource "aws_codebuild_project" "plan" {
     location        = var.github_project_url
     git_clone_depth = 1
     buildspec       = var.plan_buildspec_path
+    auth {
+      type     = "OAUTH"
+      resource = aws_codebuild_source_credential.github.arn
+    }
   }
 }
 
@@ -91,6 +102,10 @@ resource "aws_codebuild_project" "apply" {
     location        = var.github_project_url
     git_clone_depth = 1
     buildspec       = var.apply_buildspec_path
+    auth {
+      type     = "OAUTH"
+      resource = aws_codebuild_source_credential.github.arn
+    }
   }
 }
 
