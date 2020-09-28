@@ -25,3 +25,10 @@ jobs:
           CONTAINER_NAME=app-container
           docker build -t ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME} ./app
           docker push ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME}
+
+      - name: Set parameter store
+        run: |
+          aws ssm put-parameter \
+          --name "code-pipeline-deployment/ecr-repository-url" \
+          --description "Latest docker build in ECR" \
+          --value ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME}
