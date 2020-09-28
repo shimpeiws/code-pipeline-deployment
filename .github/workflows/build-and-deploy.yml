@@ -26,10 +26,16 @@ jobs:
           docker build -t ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME} ./app
           docker push ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME}
 
-      - name: Set parameter store
+      - name: Set ECR URL to parameter store
         uses: chrislennon/action-aws-cli@v1.1
         run: |
           aws ssm put-parameter \
           --name "code-pipeline-deployment/ecr-repository-url" \
           --description "Latest docker build in ECR" \
           --value ${{ secrets.ECR_REPOSITORY_URL }}:${TAG_NAME}
+
+      - name: Start pipeline execution
+        uses: chrislennon/action-aws-cli@v1.1
+        run: |
+          aws codepipeline start-pipeline-execution \
+          --name "codepipeline-main"
