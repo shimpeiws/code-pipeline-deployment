@@ -172,7 +172,8 @@ data "aws_kms_alias" "s3kmskey" {
 }
 
 resource "aws_codepipeline" "without_approval" {
-  name     = "codepipeline-main"
+  name     = "codepipeline-without-approval"
+  count    = var.need_approval ? 0 : 1
   role_arn = aws_iam_role.codepipeline_role.arn
 
   artifact_store {
@@ -202,6 +203,88 @@ resource "aws_codepipeline" "without_approval" {
         Repo       = var.github_repo_name
         Branch     = var.github_branch_name
       }
+    }
+  }
+
+  stage {
+    name = "Plan"
+
+    action {
+      name            = "Plan"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["source_output"]
+      version         = "1"
+
+      configuration = {
+        ProjectName = aws_codebuild_project.plan.name
+      }
+    }
+  }
+
+  stage {
+    name = "Apply"
+
+    action {
+      name            = "Apply"
+      category        = "Build"
+      owner           = "AWS"
+      provider        = "CodeBuild"
+      input_artifacts = ["source_output"]
+      version         = "1"
+
+      configuration = {
+        ProjectName = aws_codebuild_project.apply.name
+      }
+    }
+  }
+}
+
+resource "aws_codepipeline" "with_approval" {
+  name     = "codepipeline-with-approval"
+  count    = var.need_approval ? 1 : 0
+  role_arn = aws_iam_role.codepipeline_role.arn
+
+  artifact_store {
+    location = aws_s3_bucket.artifact.bucket
+    type     = "S3"
+
+    encryption_key {
+      id   = data.aws_kms_alias.s3kmskey.arn
+      type = "KMS"
+    }
+  }
+
+  stage {
+    name = "Source"
+
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "ThirdParty"
+      provider         = "GitHub"
+      version          = "1"
+      output_artifacts = ["source_output"]
+
+      configuration = {
+        Owner      = var.github_account_name
+        OAuthToken = var.github_oauth_token
+        Repo       = var.github_repo_name
+        Branch     = var.github_branch_name
+      }
+    }
+  }
+
+  stage {
+    name = "Approval"
+
+    action {
+      name     = "Approval"
+      category = "Approval"
+      owner    = "AWS"
+      provider = "Manual"
+      version  = "1"
     }
   }
 

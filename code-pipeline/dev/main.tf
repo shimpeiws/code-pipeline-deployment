@@ -23,4 +23,5 @@ module "code-pipeline" {
   github_branch_name         = "master"
   plan_buildspec_path        = "./code-build/terraform-plan-build-spec.yml"
   apply_buildspec_path       = "./code-build/terraform-apply-build-spec.yml"
+  need_approval              = true
 }
