@@ -47,3 +47,8 @@ variable "apply_buildspec_path" {
   description = "Path for build spec that is used for terraform apply"
   type        = string
 }
+
+variable "need_approval" {
+  description = "Approval step is required od not"
+  type        = bool
+}
